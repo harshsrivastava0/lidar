@@ -1,13 +1,19 @@
 # Formula Student Driverless: Perception using lidar on EUFS sim
 This repository aims to acheive 3D coordinates of cones placed on racetrack in Edinburg University Formula Student Simulator using a lidar pointcloud.
-Lidar used is: Velodyne VLP-16R (5 layers)
+Lidar used is: Velodyne VLP-16R (5 layers) <br />
 ROS version: ROS Noetic <br />
 Ubuntu: 20.04 <br />
 
-<img src="./images/coordinates.png" alt="mc" width="200"/>
-<img src="./images/rawpcd.png" alt="mc" width="200"/>
-<img src="./images/nogroundpcd.png" alt="mc" width="200"/>
-<img src="./images/coordinatespcd.png" alt="mc" width="200"/>
+
+### Raw output of lidar
+<img src="./images/rawpcd.png" alt="mc" width="400"/>
+
+### After ground removal
+<img src="./images/nogroundpcd.png" alt="mc" width="400"/>
+
+### Final Coordinates
+<img src="./images/coordinatespcd.png" alt="mc" width="400"/>
+<img src="./images/coordinates.png" alt="mc" width="400"/> <br />
 
 ## Installation
 
