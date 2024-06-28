@@ -17,7 +17,7 @@ This repository aims to acheive 3D coordinates of cones placed on racetrack in E
 
 ## Installation
 
-###1. Downloading EUFS simulator 
+### 1. Downloading EUFS simulator 
 ```
 sudo apt-get install ros-noetic-ackermann-msgs
 ⁠sudo apt-get install ros-noetic-twist-mux
@@ -52,7 +52,7 @@ roslaunch robot_control rqt_robot_control.launch
 ```
 to control the car using slider joystick <br />
 
-###2. Setting up this lidar package
+### 2. Setting up this lidar package
 ```
 sudo apt update
 sudo apt-get install ros-noetic-pcl-conversions
