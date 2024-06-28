@@ -51,6 +51,7 @@ def calculate():
     # header.frame_id = "base_link"  # Set the appropriate frame ID
     # pc_data = [(point[0], point[1], point[2]) for point in cloud_ros]
     # pc2_msg = point_cloud2.create_cloud_xyz32(header, pc_data)
+    # pub.publish(pc2_msg)
 
     posemsg = arrofarr()
     for i in final_points:
@@ -62,6 +63,7 @@ def calculate():
 if __name__ == "__main__":
     try:
         rospy.init_node('cone_pose')
+        # pub = rospy.Publisher('/cone_pose', PointCloud2, queue_size=10)
         pub = rospy.Publisher('/cone_pose', arrofarr, queue_size=10)
         rate = rospy.Rate(10)  # Adjust the publishing rate as needed
         while not rospy.is_shutdown():
