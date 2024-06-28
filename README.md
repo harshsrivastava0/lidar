@@ -1,8 +1,13 @@
 # Formula Student Driverless: Perception using lidar on EUFS sim
 This repository aims to acheive 3D coordinates of cones placed on racetrack in Edinburg University Formula Student Simulator using a lidar pointcloud.
 Lidar used is: Velodyne VLP-16R (5 layers)
-ROS version: ROS Noetic
-Ubuntu: 20.04
+ROS version: ROS Noetic <br />
+Ubuntu: 20.04 <br />
+
+<img src="./images/coordinates.png" alt="mc" width="200"/>
+<img src="./images/rawpcd.png" alt="mc" width="200"/>
+<img src="./images/nogroundpcd.png" alt="mc" width="200"/>
+<img src="./images/coordinatespcd.png" alt="mc" width="200"/>
 
 ## Installation
 
@@ -24,13 +29,13 @@ Ubuntu: 20.04
 15. ⁠gedit src/eufs_sim/robot_control/nodes/twist_to_ackermannDrive.py
 16. ⁠change the first line from python to python3
 
-Now you should be able to do:
-roslaunch eufs_gazebo small_track.launch 
-and see the car in its environment.
+Now you should be able to do: <br />
+roslaunch eufs_gazebo small_track.launch <br />
+and see the car in its environment. <br />
 
-In another terminal window, you can also do
-roslaunch robot_control rqt_robot_control.launch
-to control the car using slider joystick
+In another terminal window, you can also do <br />
+roslaunch robot_control rqt_robot_control.launch <br />
+to control the car using slider joystick <br />
 
 ### Setting up this lidar package
 1. sudo apt update
@@ -51,11 +56,11 @@ to control the car using slider joystick
 16. cd ..
 17. catkin_make
 
-Now after launching a track in EUFS simulator. Start an empty terminal and launch:
-roslaunch ground_removal main.launch
+Now after launching a track in EUFS simulator. Start an empty terminal and launch: <br />
+roslaunch ground_removal main.launch <br />
 
-The final coordinates of the cones are published on the topic /cone_pose
-You can view the coordinated using:
-rostopic echo /cone_pose
+The final coordinates of the cones are published on the topic /cone_pose (IMPORTANT: coordinates are given assuming lidar faces left) <br />
+You can view the coordinated using: <br />
+rostopic echo /cone_pose <br />
 
 To publish this, two custom message types arrofarr and arr have been used. The structure for which is present in lidar/clustering/msg
