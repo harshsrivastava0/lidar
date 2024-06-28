@@ -1,0 +1,11 @@
+<launch>
+    <group ns="ground_removal">
+        <node pkg="ground_removal" type="ransac3d_main.py" name="ransac3d_main" />
+    </group>
+    <group ns="clustering">
+        <node pkg="clustering" type="cluster_extraction_dbscan.py" name="cluster_extraction_dbscan" />
+    </group>
+    <group ns="pose_estimation">
+        <node pkg="pose_estimation" type="cone_pose.py" name="cone_pose" />
+    </group>
+</launch>
