@@ -17,7 +17,7 @@ def orgycoord(msg):
     global coord
     coord = []
 
-    for i in len(msg.data):
+    for i in range(len(msg.data)):
         temp = []
         temp.append(msg.data[i].data[0])
         temp.append(msg.data[i].data[1])
@@ -26,7 +26,7 @@ def orgycoord(msg):
 
 
 def camera(msg):
-    size = msg.channels[0].values[0]
+    size = int(msg.channels[0].values[0])
     global camera_msg
     camera_msg = []
     for i in range(1, size+1, 1):
@@ -47,9 +47,9 @@ def lidar(msg):
         temp.data.append(-coord[i][1])
         temp.data.append(coord[i][0])
         temp.data.append(coord[i][2])
-        for j in len(camera_msg):
+        global camera_msg
+        for j in range(len(camera_msg)):
             if msg.data[i].data[0]>=camera_msg[j][1] and msg.data[i].data[0] <= camera_msg[j][3] and msg.data[i].data[1]>=camera_msg[j][2] and msg.data[i].data[1] <= camera_msg[j][4]:
-                global camera_msg
                 temp.data.append(camera_msg[j][0])
                 break
         finalmsg.data.append(temp)
