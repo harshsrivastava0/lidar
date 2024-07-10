@@ -8,10 +8,10 @@
     <group ns="pose_estimation">
         <node pkg="pose_estimation" type="cone_pose.py" name="cone_pose" />
     </group>
-    <group ns="cam_fusion1">
+    <!-- <group ns="cam_fusion1">
         <node pkg="cam_fusion" type="coordinate_transform.py" name="coordinate_transform" />
     </group>
     <group ns="cam_fusion2">
         <node pkg="cam_fusion" type="fusion.py" name="fusion" />
-    </group>
+    </group> -->
 </launch>

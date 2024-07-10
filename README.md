@@ -72,20 +72,42 @@ git clone https://github.com/harshsrivastava0/lidar.git
 chmod +x lidar/ground_removal/ransac3d_main.py
 chmod +x lidar/clustering/cluster_extraction_dbscan.py
 chmod +x lidar/pose_estimation/cone_pose.py
+chmod +x lidar/cam_fusion/coordinate_transform.py
+chmod +x lidar/cam_fusion/fusion.py
 cd ..
 catkin_make
 ```
-Make sure to change the relative paths given in lidar/clustering/cluster_extraction_dbscan.py and lidar/pose_estimation/cone_pose.py according to your own pc.
 
+## Execution
+
+### 1. Without sensor fusion (of camera)
 
 Now after launching a track in EUFS simulator. Start an empty terminal and launch: <br />
 ```
 roslaunch ground_removal main.launch
 ```
-The final coordinates of the cones are published on the topic /cone_pose (**IMPORTANT: coordinates are given assuming lidar faces left**) <br />
+The final coordinates of the cones are published on the topic /lidar_coordinate (**IMPORTANT: coordinates are given assuming lidar faces left**) <br />
 You can view the coordinated using: <br />
 ```
-rostopic echo /cone_pose
+rostopic echo /lidar_coordinate
 ```
 
 To publish this, two custom message types arrofarr and arr have been used. The structure for which is present in lidar/clustering/msg
+
+### 2. With sensor fusion
+
+1. Launch eufs_simulator
+```
+roslaunch eufs_gazebo small_track.launch
+```
+2. Launch the yolo node available at link on the topic /zed/left/image_color
+3. Uncomment the main.launch file present at lidar/ground_removal
+4. Launch the main.launch file present at lidar/ground_removal
+```
+roslaunch ground_removal main.launch
+```
+
+You can view the coordinated using: <br />
+```
+rostopic echo /colored_cone
+```
