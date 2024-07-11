@@ -4,7 +4,7 @@ import numpy as np
 from clustering.msg import arr, arrofarr
 
 
-# this will publish the post ground removal PointCloud2 msg to /no_ground_cloud topic
+# this will publish the post ground removal PointCloud2 msg to /pixel_coordinate topic
 pub = rospy.Publisher('/pixel_coordinate', arrofarr, queue_size=10)
 
 def main(msg):

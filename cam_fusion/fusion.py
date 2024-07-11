@@ -4,7 +4,7 @@ from clustering.msg import arr, arrofarr
 from sensor_msgs.msg import PointCloud
 
 
-# this will publish the post ground removal PointCloud2 msg to /no_ground_cloud topic
+# this will publish the post ground removal PointCloud2 msg to /colored_cone topic
 pub = rospy.Publisher('/colored_cone', arrofarr, queue_size=10)
 
 global camera_msg
@@ -50,7 +50,10 @@ def lidar(msg):
         global camera_msg
         for j in range(len(camera_msg)):
             if msg.data[i].data[0]>=camera_msg[j][1] and msg.data[i].data[0] <= camera_msg[j][3] and msg.data[i].data[1]>=camera_msg[j][2] and msg.data[i].data[1] <= camera_msg[j][4]:
-                temp.data.append(camera_msg[j][0])
+                if(camera_msg[j][0]=='y'):
+                    temp.data.append(0)
+                if(camera_msg[j][0]=='b'):
+                    temp.data.append(1)
                 break
         finalmsg.data.append(temp)
     
