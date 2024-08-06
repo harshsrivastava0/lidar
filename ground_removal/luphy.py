@@ -11,7 +11,6 @@ import math
 
 # this will publish the post ground removal PointCloud2 msg to /no_ground_cloud topic
 pub = rospy.Publisher('/no_ground_cloud', PointCloud2, queue_size=10)
-# pubvis = rospy.Publisher('/visvis', PointCloud2, queue_size=10)
 marker_pub = rospy.Publisher("/visualization_marker", MarkerArray, queue_size=1)
 global count
 count = 0
@@ -19,19 +18,35 @@ global visulist
 visulist = []
 global plane
 plane = {}
+
+
+global heightlidar
+heightlidar = 0.25
+
+global segangle
+segangle = math.pi/12
+
+global ringdis
+ringdis = 0.4
+
 def propogate(lastpoint, bin_min_points, segment1, segment2, ringcount):
     global plane
     global visulist
     if(ringcount>=50):
         return
     if(segment1 not in bin_min_points or segment2 not in bin_min_points):
+        if(segment1 in bin_min_points):
+            plane[(segment1, segment2)]= [0, 0, 1, -bin_min_points[segment1][2]]
+        if(segment2 in bin_min_points):
+            plane[(segment1, segment2)]= [0, 0, 1, -bin_min_points[segment2][2]]
         #to implement:
-        #what if the innermost circle doesn't have a point, because in that case segment1-8 and segment2-8 wont exist
-        if(ringcount==0):
-            plane[(segment1, segment2)] = plane[(segment1-2, segment2-2)]
-        else:
-            plane[(segment1, segment2)] = plane[(segment1-8, segment2-8)]
-        propogate(lastpoint, bin_min_points, segment1+8, segment2+8, ringcount+1)
+        # #what if the innermost circle doesn't have a point, because in that case segment1-8 and segment2-8 wont exist
+        # if(ringcount==0):
+        #     plane[(segment1, segment2)] = plane[(segment1-2, segment2-2)]
+        # else:
+        #     plane[(segment1, segment2)] = plane[(segment1-(2*math.pi/(3*segangle)), segment2-(2*math.pi/(3*segangle)))]
+        propogate(lastpoint, bin_min_points, segment1+(2*math.pi/(3*segangle)), segment2+(2*math.pi/(3*segangle)), ringcount+1)
+
         return
     
     x1 = lastpoint[0]
@@ -52,8 +67,10 @@ def propogate(lastpoint, bin_min_points, segment1, segment2, ringcount):
     c = x2*y3 + x1*y2 + x3*y1 - (x2*y1 + x1*y3 + x3*y2 )
     d = -x1*a - y1*b - z1*c
     plane[(segment1, segment2)] = [a, b, c, d]
+    # print(plane)
+    # print()
     newpoint = [(bin_min_points[segment1][0]+bin_min_points[segment2][0])/2, (bin_min_points[segment1][1]+bin_min_points[segment2][1])/2,(bin_min_points[segment1][2]+bin_min_points[segment2][2])/2]
-    propogate(newpoint, bin_min_points, segment1+8, segment2+8, ringcount+1)
+    propogate(newpoint, bin_min_points, segment1+(2*math.pi/(3*segangle)), segment2+(2*math.pi/(3*segangle)), ringcount+1)
 
 def visu():
  
@@ -67,7 +84,7 @@ def visu():
         
 
         # Set the frame ID and timestamp
-        marker.header.frame_id = "velodyne"
+        marker.header.frame_id = "rslidar"
         marker.header.stamp = rospy.Time.now()
 
         # Set the namespace and ID for this marker
@@ -105,8 +122,8 @@ def visu():
 
         for j in range(19):
             p3 = Point()
-            p3.x=i*2*math.sin(j*math.pi/18)
-            p3.y=-i*2*math.cos(j*math.pi/18)
+            p3.x=i*ringdis*math.sin(j*math.pi/18)
+            p3.y=-i*ringdis*math.cos(j*math.pi/18)
             p3.z=0
             marker.points.append(p3)
         markerArraylala.markers.append(marker)
@@ -116,7 +133,7 @@ def visu():
         
 
         # Set the frame ID and timestamp
-        marker.header.frame_id = "velodyne"
+        marker.header.frame_id = "rslidar"
         marker.header.stamp = rospy.Time.now()
 
         # Set the namespace and ID for this marker
@@ -170,7 +187,7 @@ def visu():
         marker = Marker()
 
         # Set the frame ID and timestamp
-        marker.header.frame_id = "velodyne"
+        marker.header.frame_id = "rslidar"
         marker.header.stamp = rospy.Time.now()
 
         # Set the namespace and ID for this marker
@@ -219,6 +236,9 @@ def visu():
 
 def main(msg):
     global visulist
+    global ringdis
+    global segangle
+    global heightlidar
     visulist = []
     #Converting from PointCloud2 msg type to o3d pointcloud
     pc_data = []
@@ -234,14 +254,20 @@ def main(msg):
 
     bin_min_points = {}
     bin_all_points = {}
-
+    minhori = 360
+    maxhori = 0
     for i in pc_data:
-        distance = int(((i[0]**2 + i[1]**2)**0.5)/2)
+        distance = int(((i[0]**2 + i[1]**2)**0.5)/ringdis)
         horizontal_angle = math.atan2(i[0], -i[1])
-        if(horizontal_angle==math.pi):
+        if(horizontal_angle<minhori):
+            minhori = horizontal_angle
+        if(horizontal_angle>maxhori):
+            maxhori = horizontal_angle
+        if(horizontal_angle>=2*math.pi/3 or horizontal_angle<=math.pi/6):
             continue
-        index =int(horizontal_angle/(math.pi/8)) + (8*distance)
         
+        index =int(horizontal_angle/(segangle)) + ((2*math.pi/(3*segangle))*distance) - (math.pi/(6*segangle))
+
         if(index not in bin_min_points):
             bin_min_points[index] = i
         else:
@@ -251,11 +277,25 @@ def main(msg):
             bin_all_points[index] = []
         bin_all_points[index].append(i)
 
-    lidarpoint = [0, 0, -0.03585]
-    
+    lidarpoint = [0, 0, -heightlidar]
 
-    for i in range(0, 8, 2):
-        propogate(lidarpoint, bin_min_points, i, i+1, 0)
+    # print(minhori*180/math.pi)
+    # print(maxhori*180/math.pi)
+    # print()
+    # print(bin_min_points)
+    # print()
+    # print()
+    # for i in bin_min_points:
+    #     print(i)
+
+    # print()
+    # print()
+    # for i in bin_min_points:
+    #     if(i<=0):
+    #         print(i, end = " ")
+    startatring = 0
+    for i in range(0+int((2*math.pi/(3*segangle))*startatring), int((2*math.pi/(3*segangle))*(startatring+1)), 2):
+        propogate(lidarpoint, bin_min_points, i, i+1, startatring)
 
     # visu()
     ground = []
@@ -282,7 +322,7 @@ def main(msg):
     cloud_ros.from_list(noground)
     header = rospy.Header()
     header.stamp = rospy.Time.now()
-    header.frame_id = "velodyne"  # Set the appropriate frame ID
+    header.frame_id = "rslidar"  # Set the appropriate frame ID
     dummy = [(point[0], point[1], point[2]) for point in cloud_ros]
     pc2_msg = point_cloud2.create_cloud_xyz32(header, dummy)
     pub.publish(pc2_msg)
@@ -291,7 +331,7 @@ def main(msg):
 
 if __name__ == "__main__":
     rospy.init_node("lu")
-    rospy.Subscriber("/velodyne_points", PointCloud2, main)
+    rospy.Subscriber("/rslidar_points", PointCloud2, main)
 
     # Spin to keep the node alive
     rospy.spin()
